@@ -1,7 +1,7 @@
 import torch
 from torch.autograd import Function
 
-from . import gather_points_ext
+#from . import gather_points_ext
 
 
 class GatherPoints(Function):
@@ -29,8 +29,8 @@ class GatherPoints(Function):
         _, C, N = features.size()
         output = torch.cuda.FloatTensor(B, C, npoint)
 
-        gather_points_ext.gather_points_wrapper(B, C, N, npoint, features,
-                                                indices, output)
+        #gather_points_ext.gather_points_wrapper(B, C, N, npoint, features,
+        #                                        indices, output)
 
         ctx.for_backwards = (indices, C, N)
         ctx.mark_non_differentiable(indices)
