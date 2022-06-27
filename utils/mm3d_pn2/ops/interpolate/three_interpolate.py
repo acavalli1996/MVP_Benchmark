@@ -2,7 +2,7 @@ import torch
 from torch.autograd import Function
 from typing import Tuple
 
-from . import interpolate_ext
+#from . import interpolate_ext
 
 
 class ThreeInterpolate(Function):
@@ -31,8 +31,8 @@ class ThreeInterpolate(Function):
         ctx.three_interpolate_for_backward = (indices, weight, m)
         output = torch.cuda.FloatTensor(B, c, n)
 
-        interpolate_ext.three_interpolate_wrapper(B, c, m, n, features,
-                                                  indices, weight, output)
+        #interpolate_ext.three_interpolate_wrapper(B, c, m, n, features,
+        #                                          indices, weight, output)
         return output
 
     @staticmethod
@@ -53,10 +53,10 @@ class ThreeInterpolate(Function):
         grad_features = torch.cuda.FloatTensor(B, c, m).zero_()
         grad_out_data = grad_out.data.contiguous()
 
-        interpolate_ext.three_interpolate_grad_wrapper(B, c, n, m,
-                                                       grad_out_data, idx,
-                                                       weight,
-                                                       grad_features.data)
+        #interpolate_ext.three_interpolate_grad_wrapper(B, c, n, m,
+        #                                               grad_out_data, idx,
+        #                                               weight,
+        #                                               grad_features.data)
         return grad_features, None, None
 
 
