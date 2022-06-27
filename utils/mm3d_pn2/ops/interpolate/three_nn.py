@@ -2,7 +2,7 @@ import torch
 from torch.autograd import Function
 from typing import Tuple
 
-from . import interpolate_ext
+#from . import interpolate_ext
 
 
 class ThreeNN(Function):
@@ -31,7 +31,7 @@ class ThreeNN(Function):
         dist2 = torch.cuda.FloatTensor(B, N, 3)
         idx = torch.cuda.IntTensor(B, N, 3)
 
-        interpolate_ext.three_nn_wrapper(B, N, m, target, source, dist2, idx)
+        #interpolate_ext.three_nn_wrapper(B, N, m, target, source, dist2, idx)
 
         ctx.mark_non_differentiable(idx)
 
