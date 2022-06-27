@@ -1,7 +1,7 @@
 import torch
 from torch.autograd import Function
 
-from . import furthest_point_sample_ext
+#from . import furthest_point_sample_ext
 
 
 class FurthestPointSampling(Function):
@@ -29,8 +29,8 @@ class FurthestPointSampling(Function):
         output = torch.cuda.IntTensor(B, num_points)
         temp = torch.cuda.FloatTensor(B, N).fill_(1e10)
 
-        furthest_point_sample_ext.furthest_point_sampling_wrapper(
-            B, N, num_points, points_xyz, temp, output)
+        #furthest_point_sample_ext.furthest_point_sampling_wrapper(
+        #    B, N, num_points, points_xyz, temp, output)
         ctx.mark_non_differentiable(output)
         return output
 
@@ -64,8 +64,8 @@ class FurthestPointSamplingWithDist(Function):
         output = points_dist.new_zeros([B, num_points], dtype=torch.int32)
         temp = points_dist.new_zeros([B, N]).fill_(1e10)
 
-        furthest_point_sample_ext.furthest_point_sampling_with_dist_wrapper(
-            B, N, num_points, points_dist, temp, output)
+        #furthest_point_sample_ext.furthest_point_sampling_with_dist_wrapper(
+        #    B, N, num_points, points_dist, temp, output)
         ctx.mark_non_differentiable(output)
         return output
 
