@@ -5,7 +5,7 @@ from typing import Tuple
 
 from ..ball_query import ball_query
 from ..knn import knn
-from . import group_points_ext
+#from . import group_points_ext
 
 
 class QueryAndGroup(nn.Module):
@@ -189,8 +189,8 @@ class GroupingOperation(Function):
         _, C, N = features.size()
         output = torch.cuda.FloatTensor(B, C, nfeatures, nsample)
 
-        group_points_ext.forward(B, C, N, nfeatures, nsample, features,
-                                 indices, output)
+        #group_points_ext.forward(B, C, N, nfeatures, nsample, features,
+        #                         indices, output)
 
         ctx.for_backwards = (indices, N)
         return output
@@ -213,8 +213,8 @@ class GroupingOperation(Function):
         grad_features = torch.cuda.FloatTensor(B, C, N).zero_()
 
         grad_out_data = grad_out.data.contiguous()
-        group_points_ext.backward(B, C, N, npoint, nsample, grad_out_data, idx,
-                                  grad_features.data)
+        #group_points_ext.backward(B, C, N, npoint, nsample, grad_out_data, idx,
+        #                          grad_features.data)
         return grad_features, None
 
 
