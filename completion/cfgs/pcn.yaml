@@ -1,10 +1,10 @@
-batch_size: 32
+batch_size: 25
 workers: 0
 nepoch: 100
 model_name: pcn
 load_model: null
 start_epoch: 0
-num_points: 2048
+num_points: 150
 work_dir: log/
 flag: debug
 loss: cd
