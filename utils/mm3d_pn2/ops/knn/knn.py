@@ -1,7 +1,7 @@
 import torch
 from torch.autograd import Function
 
-from . import knn_ext
+#from . import knn_ext
 
 
 class KNN(Function):
@@ -58,7 +58,7 @@ class KNN(Function):
         idx = center_xyz.new_zeros((B, npoint, k)).int()
         dist2 = center_xyz.new_zeros((B, npoint, k)).float()
 
-        knn_ext.knn_wrapper(B, N, npoint, k, xyz, center_xyz, idx, dist2)
+        #knn_ext.knn_wrapper(B, N, npoint, k, xyz, center_xyz, idx, dist2)
         # idx shape to [B, k, npoint]
         idx = idx.transpose(2, 1).contiguous()
         ctx.mark_non_differentiable(idx)
