@@ -99,14 +99,14 @@ def plot_part_feats(
 
 
 def plot_part_feats_jet_mass(
-    jet_type,
-    real_jets,
+    #jet_type,
+    #real_jets,
     gen_jets,
-    real_mask,
+    #real_mask,
     gen_mask,
-    real_masses,
+    #real_masses,
     gen_masses,
-    num_particles=30,
+    num_particles=150,
     coords="polarrel",
     name=None,
     figs_path=None,
