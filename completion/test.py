@@ -7,6 +7,8 @@ import numpy as np
 import h5py
 import subprocess
 
+import plotting
+
 from numpy.lib.index_tricks import AxisConcatenator
 import munch
 import yaml
@@ -80,3 +82,20 @@ if __name__ == "__main__":
                                                       logging.StreamHandler(sys.stdout)])
 
     test()
+    make_plots(
+        losses,
+        epoch,
+        #real_jets,
+        gen_jets,
+        #real_mask,
+        gen_mask,
+        args.jets,
+        args.num_hits,
+        str(epoch),
+        args.figs_path,
+        args.losses_path,
+        save_epochs=args.save_epochs,
+        const_ylim=args.const_ylim,
+        coords=args.coords,
+        loss=args.loss,
+     )
