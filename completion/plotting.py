@@ -176,16 +176,16 @@ def plot_part_feats(
         plt.ylabel("Number of Particles")
         if const_ylim:
             plt.ylim(0, ylims[i])
-        if losses is not None and "w1p" in losses:
-            plt.title(
-                f'$W_1$ = {losses["w1p"][-1][i]:.2e} ± {losses["w1p"][-1][i + len(losses["w1p"][-1]) // 2]:.2e}',
-                fontsize=12,
-            )
+        #if losses is not None and "w1p" in losses:
+        #    plt.title(
+        #        f'$W_1$ = {losses["w1p"][-1][i]:.2e} ± {losses["w1p"][-1][i + len(losses["w1p"][-1]) // 2]:.2e}',
+        #        fontsize=12,
+        #    )
         plt.legend(loc=1, prop={"size": 18})
 
     plt.tight_layout(pad=2.0)
-    if figs_path is not None and name is not None:
-        plt.savefig(figs_path + name + ".pdf", bbox_inches="tight")
+    #if figs_path is not None and name is not None:
+    #    plt.savefig(figs_path + name + ".pdf", bbox_inches="tight")
 
     if show:
         plt.show()
@@ -193,107 +193,12 @@ def plot_part_feats(
         plt.close()
 
 
-def plot_part_feats_jet_mass(
-    #jet_type,
-    #real_jets,
-    gen_jets,
-    #real_mask,
-    gen_mask,
-    #real_masses,
-    gen_masses,
-    num_particles=150,
-    coords="polarrel",
-    name=None,
-    figs_path=None,
-    dataset="jetnet",
-    losses=None,
-    const_ylim=False,
-    show=False,
-):
-    """Plot histograms of particle feature + jet mass in one row"""
-    if coords == "cartesian":
-        plabels = ["$p_x$ (GeV)", "$p_y$ (GeV)", "$p_z$ (GeV)"]
-        bin = np.arange(-500, 500, 10)
-        pbins = [bin, bin, bin]
-    elif coords == "polarrel":
-        plabels = ["$\eta^{rel}$", "$\phi^{rel}$", "$p_T^{rel}$"]
-        if jet_type == "g" or jet_type == "q" or jet_type == "w" or jet_type == "z":
-            if num_particles == 100:
-                pbins = [
-                    np.arange(-0.5, 0.5, 0.005),
-                    np.arange(-0.5, 0.5, 0.005),
-                    np.arange(0, 0.1, 0.001),
-                ]
-            else:
-                pbins = [
-                    np.linspace(-0.3, 0.3, 100),
-                    np.linspace(-0.3, 0.3, 100),
-                    np.linspace(0, 0.2, 100),
-                ]
-        elif jet_type == "t":
-            pbins = [
-                np.linspace(-0.5, 0.5, 100),
-                np.linspace(-0.5, 0.5, 100),
-                np.linspace(0, 0.2, 100),
-            ]
-    elif coords == "polarrelabspt":
-        plabels = ["$\eta^{rel}$", "$\phi^{rel}$", "$p_T (GeV)$"]
-        pbins = [np.arange(-0.5, 0.5, 0.01), np.arange(-0.5, 0.5, 0.01), np.arange(0, 400, 4)]
-
-    if jet_type == "g" or jet_type == "q" or jet_type == "t":
-        mbins = np.linspace(0, 0.225, 51)
-    else:
-        mbins = np.linspace(0, 0.12, 51)
-
-    if real_mask is not None:
-        parts_real = real_jets[real_mask]
-        parts_gen = gen_jets[gen_mask]
-    else:
-        parts_real = real_jets.reshape(-1, real_jets.shape[2])
-        parts_gen = gen_jets.reshape(-1, gen_jets.shape[2])
-
-    fig = plt.figure(figsize=(30, 8))
-
-    for i in range(3):
-        fig.add_subplot(1, 4, i + 1)
-        plt.ticklabel_format(axis="y", scilimits=(0, 0), useMathText=True)
-        _ = plt.hist(parts_real[:, i], pbins[i], histtype="step", label="Real", color="red")
-        _ = plt.hist(parts_gen[:, i], pbins[i], histtype="step", label="Generated", color="blue")
-        plt.xlabel("Particle " + plabels[i])
-        plt.ylabel("Number of Particles")
-        if losses is not None and "w1p" in losses:
-            plt.title(
-                f'$W_1$ = {losses["w1p"][-1][i]:.2e} ± {losses["w1p"][-1][i + len(losses["w1p"][-1]) // 2]:.2e}',
-                fontsize=12,
-            )
-
-        plt.legend(loc=1, prop={"size": 18})
-
-    fig.add_subplot(1, 4, 4)
-    plt.ticklabel_format(axis="y", scilimits=(0, 0), useMathText=True)
-    _ = plt.hist(real_masses, bins=mbins, histtype="step", label="Real", color="red")
-    _ = plt.hist(gen_masses, bins=mbins, histtype="step", label="Generated", color="blue")
-    plt.xlabel("Jet $m/p_{T}$")
-    plt.ylabel("Jets")
-    plt.legend(loc=1, prop={"size": 18})
-    if losses is not None and "w1m" in losses:
-        plt.title(f'$W_1$ = {losses["w1m"][-1][0]:.2e} ± {losses["w1m"][-1][1]:.2e}', fontsize=12)
-
-    plt.tight_layout(pad=2.0)
-    if figs_path is not None and name is not None:
-        plt.savefig(figs_path + name + ".pdf", bbox_inches="tight")
-
-    if show:
-        plt.show()
-    else:
-        plt.close()
-
-
+       
 def plot_jet_feats(
     jet_type,
-    real_masses,
+    #real_masses,
     gen_masses,
-    real_efps,
+    #real_efps,
     gen_efps,
     name=None,
     figs_path=None,
@@ -312,8 +217,8 @@ def plot_jet_feats(
 
     if jet_type == "g" or jet_type == "q" or jet_type == "t":
         mbins = np.linspace(0, 0.225, 51)
-    else:
-        mbins = np.linspace(0, 0.12, 51)
+    #else:
+    #    mbins = np.linspace(0, 0.12, 51)
 
     fig = plt.figure(figsize=(20, 12))
 
@@ -324,8 +229,8 @@ def plot_jet_feats(
     plt.xlabel("Jet $m/p_{T}$")
     plt.ylabel("Jets")
     plt.legend(loc=1, prop={"size": 18})
-    if losses is not None and "w1m" in losses:
-        plt.title(f'$W_1$ = {losses["w1m"][-1][0]:.2e} ± {losses["w1m"][-1][1]:.2e}', fontsize=12)
+    #if losses is not None and "w1m" in losses:
+    #    plt.title(f'$W_1$ = {losses["w1m"][-1][0]:.2e} ± {losses["w1m"][-1][1]:.2e}', fontsize=12)
 
     for i in range(5):
         fig.add_subplot(2, 3, i + 2)
@@ -336,15 +241,15 @@ def plot_jet_feats(
         plt.xlabel("EFP " + str(i + 1), x=0.7)
         plt.ylabel("Jets")
         plt.legend(loc=1, prop={"size": 18})
-        if losses is not None and "w1efp" in losses:
-            plt.title(
-                f'$W_1$ = {losses["w1efp"][-1][i]:.2e} ± {losses["w1efp"][-1][i + len(losses["w1efp"][-1]) // 2]:.2e}',
-                fontsize=12,
-            )
+        #if losses is not None and "w1efp" in losses:
+        #    plt.title(
+        #        f'$W_1$ = {losses["w1efp"][-1][i]:.2e} ± {losses["w1efp"][-1][i + len(losses["w1efp"][-1]) // 2]:.2e}',
+        #        fontsize=12,
+        #    )
 
     plt.tight_layout(pad=0.5)
-    if figs_path is not None and name is not None:
-        plt.savefig(figs_path + name + ".pdf", bbox_inches="tight")
+    #if figs_path is not None and name is not None:
+    #    plt.savefig(figs_path + name + ".pdf", bbox_inches="tight")
 
     if show:
         plt.show()
@@ -414,8 +319,8 @@ def plot_losses(losses, loss="lg", name=None, losses_path=None, show=False):
     plt.ylabel("Loss")
     plt.legend()
 
-    if losses_path is not None and name is not None:
-        plt.savefig(losses_path + name + ".pdf", bbox_inches="tight")
+    #if losses_path is not None and name is not None:
+    #    plt.savefig(losses_path + name + ".pdf", bbox_inches="tight")
 
     if show:
         plt.show()
@@ -484,8 +389,8 @@ def plot_eval(
         plt.ylabel("FPND")
         plt.yscale("log")
 
-    if losses_path is not None and name is not None:
-        plt.savefig(losses_path + name + ".pdf", bbox_inches="tight")
+    #if losses_path is not None and name is not None:
+    #    plt.savefig(losses_path + name + ".pdf", bbox_inches="tight")
 
     if show:
         plt.show()
