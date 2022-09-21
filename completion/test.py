@@ -67,8 +67,8 @@ def test():
 
         
 def make_plots(
-    losses,
-    epoch,
+    #losses,
+    #epoch,
     #real_jets,
     gen_jets,
     #real_mask,
@@ -178,8 +178,8 @@ if __name__ == "__main__":
 
     test()
     make_plots(
-        losses,
-        epoch,
+        #losses,
+        #epoch,
         #real_jets,
         gen_jets,
         #real_mask,
