@@ -52,7 +52,8 @@ class PCN_decoder(nn.Module):
         batch_size = x.size()[0]
         coarse = F.relu(self.fc1(x))
         coarse = F.relu(self.fc2(coarse))
-        coarse = self.fc3(coarse).view(-1, 4, self.num_coarse)
+        #coarse = self.fc3(coarse).view(-1, 4, self.num_coarse)
+        coarse = self.fc3(coarse).view(-1, 3, self.num_coarse)
 
         grid = self.grid.clone().detach()
         grid_feat = grid.unsqueeze(0).repeat(batch_size, 1, self.num_coarse).contiguous().cuda()
