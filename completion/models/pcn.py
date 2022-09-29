@@ -13,7 +13,8 @@ from model_utils import gen_grid_up, calc_emd, calc_cd
 class PCN_encoder(nn.Module):
     def __init__(self, output_size=75):
         super(PCN_encoder, self).__init__()
-        self.conv1 = nn.Conv1d(4, 8, 1)
+        #self.conv1 = nn.Conv1d(4, 8, 1)
+        self.conv1 = nn.Conv1d(3, 8, 1)
         self.conv2 = nn.Conv1d(8, 16, 1)
         self.conv3 = nn.Conv1d(32, 64, 1)
         self.conv4 = nn.Conv1d(64, output_size, 1)
@@ -37,14 +38,16 @@ class PCN_decoder(nn.Module):
         self.num_fine = num_fine
         self.fc1 = nn.Linear(75, 75)
         self.fc2 = nn.Linear(75, 75)
-        self.fc3 = nn.Linear(75, num_coarse * 4)
-
+        #self.fc3 = nn.Linear(75, num_coarse * 4)
+        self.fc3 = nn.Linear(75, num_coarse * 3)
+        
         self.scale = scale
         self.grid = gen_grid_up(2 ** (int(math.log2(scale))), 0.05).cuda().contiguous()
         self.conv1 = nn.Conv1d(cat_feature_num, 64, 1)
         self.conv2 = nn.Conv1d(64, 64, 1)
-        self.conv3 = nn.Conv1d(64, 4, 1)
-
+        #self.conv3 = nn.Conv1d(64, 4, 1)
+        self.conv3 = nn.Conv1d(64, 3, 1)
+        
     def forward(self, x):
         batch_size = x.size()[0]
         coarse = F.relu(self.fc1(x))
@@ -56,7 +59,8 @@ class PCN_decoder(nn.Module):
 
         point_feat = (
             (coarse.transpose(1, 2).contiguous()).unsqueeze(2).repeat(1, 1, self.scale, 1).view(-1, self.num_fine,
-                                                                                                4)).transpose(1,
+                                                                                                #4)).transpose(1,
+                                                                                                3)).transpose(1,
                                                                                                               2).contiguous()
 
         global_feat = x.unsqueeze(2).repeat(1, 1, self.num_fine)
@@ -64,7 +68,8 @@ class PCN_decoder(nn.Module):
         feat = torch.cat((grid_feat, point_feat, global_feat), 1)
 
         center = ((coarse.transpose(1, 2).contiguous()).unsqueeze(2).repeat(1, 1, self.scale, 1).view(-1, self.num_fine,
-                                                                                                      4)).transpose(1,
+                                                                                                      #4)).transpose(1,
+                                                                                                      3)).transpose(1,
                                                                                                                     2).contiguous()
 
         fine = self.conv3(F.relu(self.conv2(F.relu(self.conv1(feat))))) + center
@@ -80,7 +85,8 @@ class Model(nn.Module):
         self.train_loss = args.loss
         self.eval_emd = args.eval_emd
         self.scale = self.num_points // num_coarse
-        self.cat_feature_num = 2 + 4 + 75
+        #self.cat_feature_num = 2 + 4 + 75
+        self.cat_feature_num = 2 + 3 + 75
 
         self.encoder = PCN_encoder()
         self.decoder = PCN_decoder(num_coarse, self.num_points, self.scale, self.cat_feature_num)
