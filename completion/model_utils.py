@@ -1,3 +1,4 @@
+from __future__ import annotations  # for ArrayLike type in docs
 import torch
 import math
 import os
@@ -5,7 +6,6 @@ import sys
 import torch.nn as nn
 import torch.nn.functional as F
 
-from __future__ import annotations  # for ArrayLike type in docs
 from typing import Dict, Union, Tuple
 from numpy.typing import ArrayLike
 
