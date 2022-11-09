@@ -7,7 +7,7 @@ import torch.nn.functional as F
 import math
 
 # from utils.model_utils import gen_grid_up, calc_emd, calc_cd
-from model_utils import gen_grid_up, calc_emd, calc_cd, gen_jet_corrections
+from model_utils import gen_grid_up, calc_emd, calc_cd, gen_jet_corrections, calc_dcd
 
 
 class PCN_encoder(nn.Module):
@@ -119,8 +119,15 @@ class Model(nn.Module):
                 loss1MSE = lossMSE(out1,gt)
                 loss2MSE = lossMSE(out2,gt)
                 
-                loss1cd, _ = calc_cd(out1, gt)
-                loss2cd, _ = calc_cd(out2, gt)
+                # Classic CD
+                #loss1cd, _ = calc_cd(out1, gt)
+                #loss2cd, _ = calc_cd(out2, gt)
+                
+                # DCD
+                loss_opts_alpha = 200
+                loss_opts_lambda = 0.5
+                loss1cd, _, _ = calc_dcd(out1, gt, alpha=loss_opts_alpha, n_lambda=loss_opts_lambda)
+                loss2cd, _, _ = calc_dcd(out2, gt, alpha=loss_opts_alpha, n_lambda=loss_opts_lambda)
                 
                 out1pt = out1[:,:,2] # pt
                 out1idis = out1[:,:,-1] # eta,phi
