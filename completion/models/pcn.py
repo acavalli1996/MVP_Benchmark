@@ -14,10 +14,10 @@ class PCN_encoder(nn.Module):
     def __init__(self, output_size=75):
         super(PCN_encoder, self).__init__()
         #self.conv1 = nn.Conv1d(4, 8, 1)
-        self.conv1 = nn.Conv1d(3, 8, 1)
-        self.conv2 = nn.Conv1d(8, 16, 1)
-        self.conv3 = nn.Conv1d(32, 64, 1)
-        self.conv4 = nn.Conv1d(64, output_size, 1)
+        self.conv1 = nn.Conv1d(3, 256, 1)
+        self.conv2 = nn.Conv1d(256, 512, 1)
+        self.conv3 = nn.Conv1d(1064, 2048, 1)
+        self.conv4 = nn.Conv1d(2048, output_size, 1)
 
     def forward(self, x):
         batch_size, _, num_points = x.size()
@@ -36,17 +36,17 @@ class PCN_decoder(nn.Module):
         super(PCN_decoder, self).__init__()
         self.num_coarse = num_coarse
         self.num_fine = num_fine
-        self.fc1 = nn.Linear(75, 75)
+        self.fc1 = nn.Linear(5, 75)
         self.fc2 = nn.Linear(75, 75)
         #self.fc3 = nn.Linear(75, num_coarse * 4)
         self.fc3 = nn.Linear(75, num_coarse * 3)
         
         self.scale = scale
         self.grid = gen_grid_up(2 ** (int(math.log2(scale))), 0.05).cuda().contiguous()
-        self.conv1 = nn.Conv1d(cat_feature_num, 64, 1)
-        self.conv2 = nn.Conv1d(64, 64, 1)
+        self.conv1 = nn.Conv1d(cat_feature_num, 2048, 1)
+        self.conv2 = nn.Conv1d(2048, 2048, 1)
         #self.conv3 = nn.Conv1d(64, 4, 1)
-        self.conv3 = nn.Conv1d(64, 3, 1)
+        self.conv3 = nn.Conv1d(2048, 3, 1)
         
     def forward(self, x):
         batch_size = x.size()[0]
