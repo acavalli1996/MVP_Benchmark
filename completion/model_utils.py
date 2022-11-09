@@ -335,7 +335,7 @@ def gen_jet_corrections(
     if zero_neg_pt:
         jets[:, :, pt_index][jets[:, :, pt_index] < 0] = 0
 
-    return (jets[:, :, :-1], mask) if ret_mask_separate else 
+    return (jets[:, :, :-1], mask) if ret_mask_separate else jets
 
 def calc_dcd(x, gt, alpha=1000, n_lambda=1, return_raw=False, non_reg=False):
     x = x.float()
