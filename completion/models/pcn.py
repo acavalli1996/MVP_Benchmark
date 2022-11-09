@@ -146,7 +146,7 @@ class Model(nn.Module):
                 loss1MSE_totdis = loss1MSE_pt * loss1MSE_dis
                 loss2MSE_totdis = loss2MSE_pt * loss2MSE_dis
                 
-                loss2 = (a * loss2MSE) + (b * loss2cd) + (c * loss2MSE_totdis)
+                loss2 = (a * loss2MSE) + (b * loss2cd) + (g * loss2MSE_totdis)
                 
             else:
                 raise NotImplementedError('Train loss is either CD or EMD!')
@@ -154,7 +154,7 @@ class Model(nn.Module):
             total_train_loss_cd = loss1cd.mean() + loss2cd.mean()  #ATTENZIONE, ALPHA PRE-ESISTENTE
             total_train_loss_MSE = loss1MSE.mean() + loss2MSE.mean()
             total_train_loss_MSE_dis = loss1MSE_totdis.mean() + loss2MSE_totdis.mean()
-            total_train_loss = (a * total_train_loss_MSE) + (b*total_train_loss_cd) + (c*total_train_loss_MSE_dis)
+            total_train_loss = (a * total_train_loss_MSE) + (b*total_train_loss_cd) + (g*total_train_loss_MSE_dis)
             #(total_train_loss = loss_cd * alpha)
             
             return out2, loss2, total_train_loss
@@ -164,6 +164,25 @@ class Model(nn.Module):
             else:
                 emd = 0
             cd_p, cd_t, f1 = calc_cd(out2, gt, calc_f1=True)
-            return {'out1': out1, 'out2': out2, 'emd': emd, 'cd_p': cd_p, 'cd_t': cd_t, 'f1': f1}
+            lossMSE = nn.MSELoss(reduction = 'none')
+            loss2MSE = lossMSE(out2,gt)
+            loss_opts_alpha = 200
+            loss_opts_lambda = 0.5
+        
+            loss2cd, _, _ = calc_dcd(out2, gt, alpha=loss_opts_alpha, n_lambda=loss_opts_lambda)
+            
+            out2pt = out2[:,:,2] # pt
+            out2dis =  out2[:,:,-1] # eta, phi
+                
+            gtpt = gt[:,:,2] # pt
+            gtdis = gt[:,:,:-1] # eta,phi
+            loss2MSE_pt = lossMSE(out2pt, gtpt)
+            loss2MSE_dis = lossMSE(out2dis, gtdis)
+            loss2MSE_totdis = loss2MSE_pt * loss2MSE_dis
+            a = 0.5
+            b = 0.5
+            g = 0.5
+            loss2 = (a * loss2MSE) + (b * loss2cd) + (g * loss2MSE_totdis)
+            return {'out1': out1, 'out2': out2, 'emd': emd, 'cd_p': cd_p, 'cd_t': cd_t, 'f1': f1,'loss2cd': loss2cd, 'tot_loss': loss2}
         else:
             return {'result': out2}
