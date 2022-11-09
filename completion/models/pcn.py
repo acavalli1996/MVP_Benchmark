@@ -130,7 +130,7 @@ class Model(nn.Module):
                 loss2cd, _, _ = calc_dcd(out2, gt, alpha=loss_opts_alpha, n_lambda=loss_opts_lambda)
                 
                 out1pt = out1[:,:,2] # pt
-                out1idis = out1[:,:,-1] # eta,phi
+                out1dis = out1[:,:,-1] # eta,phi
 
                 out2pt = out2[:,:,2] # pt
                 out2dis =  out2[:,:,-1] # eta, phi
