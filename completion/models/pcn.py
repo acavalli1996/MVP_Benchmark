@@ -7,7 +7,7 @@ import torch.nn.functional as F
 import math
 
 # from utils.model_utils import gen_grid_up, calc_emd, calc_cd
-from model_utils import gen_grid_up, calc_emd, calc_cd
+from model_utils import gen_grid_up, calc_emd, calc_cd, gen_jet_corrections
 
 
 class PCN_encoder(nn.Module):
@@ -93,22 +93,63 @@ class Model(nn.Module):
         self.decoder = PCN_decoder(num_coarse, self.num_points, self.scale, self.cat_feature_num)
 
     def forward(self, x, gt=None, prefix="train", mean_feature=None, alpha=None):
+        
+        x,mask = gen_jet_corrections(x, ret_mask_separate = True)
+        gt,mask_mask = gen_jet_corrections(gt, ret_mask_separate = True)
+        
         feat = self.encoder(x)
         out1, out2 = self.decoder(feat)
         out1 = out1.transpose(1, 2).contiguous()
         out2 = out2.transpose(1, 2).contiguous()
 
+        
+        a = 0.5
+        b = 0.5
+        g = 0.5
+        
+        
+        
         if prefix=="train":
             if self.train_loss == 'emd':
                 loss1 = calc_emd(out1, gt)
                 loss2 = calc_emd(out2, gt)
             elif self.train_loss == 'cd':
-                loss1, _ = calc_cd(out1, gt)
-                loss2, _ = calc_cd(out2, gt)
+                
+                lossMSE = nn.MSELoss(reduction = 'none')
+                loss1MSE = lossMSE(out1,gt)
+                loss2MSE = lossMSE(out2,gt)
+                
+                loss1cd, _ = calc_cd(out1, gt)
+                loss2cd, _ = calc_cd(out2, gt)
+                
+                out1pt = out1[:,:,2] # pt
+                out1idis = out1[:,:,-1] # eta,phi
+
+                out2pt = out2[:,:,2] # pt
+                out2dis =  out2[:,:,-1] # eta, phi
+                
+                gtpt = gt[:,:,2] # pt
+                gtdis = gt[:,:,:-1] # eta,phi
+                
+                loss1MSE_pt = lossMSE(out1pt, gtpt)
+                loss2MSE_pt = lossMSE(out2pt, gtpt)
+                loss1MSE_dis = lossMSE(out1dis, gtdis)
+                loss2MSE_dis = lossMSE(out2dis, gtdis)
+                
+                loss1MSE_totdis = loss1MSE_pt * loss1MSE_dis
+                loss2MSE_totdis = loss2MSE_pt * loss2MSE_dis
+                
+                loss2 = (a * loss2MSE) + (b * loss2cd) + (c * loss2MSE_totdis)
+                
             else:
                 raise NotImplementedError('Train loss is either CD or EMD!')
 
-            total_train_loss = loss1.mean() + loss2.mean() * alpha
+            total_train_loss_cd = loss1cd.mean() + loss2cd.mean()  #ATTENZIONE, ALPHA PRE-ESISTENTE
+            total_train_loss_MSE = loss1MSE.mean() + loss2MSE.mean()
+            total_train_loss_MSE_dis = loss1MSE_totdis.mean() + loss2MSE_totdis.mean()
+            total_train_loss = (a * total_train_loss_MSE) + (b*total_train_loss_cd) + (c*total_train_loss_MSE_dis)
+            #(total_train_loss = loss_cd * alpha)
+            
             return out2, loss2, total_train_loss
         elif prefix=="val":
             if self.eval_emd:
