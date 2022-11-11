@@ -7,8 +7,8 @@ import torch.nn.functional as F
 import math
 
 # from utils.model_utils import gen_grid_up, calc_emd, calc_cd
-from model_utils import gen_grid_up, calc_emd, calc_cd, gen_jet_corrections, calc_dcd
-
+#from model_utils import gen_grid_up, calc_emd, calc_cd, gen_jet_corrections, calc_dcd
+from model_utils import gen_grid_up, calc_emd, calc_cd,
 
 class PCN_encoder(nn.Module):
     def __init__(self, output_size=75):
@@ -103,9 +103,9 @@ class Model(nn.Module):
         out2 = out2.transpose(1, 2).contiguous()
 
         
-        a = 0.5
-        b = 0.5
-        g = 0.5
+        a = 0.3
+        b = 0.4
+        g = 0.3
         
         
         
@@ -120,38 +120,38 @@ class Model(nn.Module):
                 loss2MSE = lossMSE(out2,gt)
                 
                 # Classic CD
-                #loss1cd, _ = calc_cd(out1, gt)
-                #loss2cd, _ = calc_cd(out2, gt)
+                loss1cd, _ = calc_cd(out1, gt)
+                loss2cd, _ = calc_cd(out2, gt)
                 
                 # DCD
-                loss_opts_alpha = 200
-                loss_opts_lambda = 0.5
-                loss1cd, _, _ = calc_dcd(out1, gt, alpha=loss_opts_alpha, n_lambda=loss_opts_lambda)
-                loss2cd, _, _ = calc_dcd(out2, gt, alpha=loss_opts_alpha, n_lambda=loss_opts_lambda)
+                #loss_opts_alpha = 200
+                #loss_opts_lambda = 0.5
+                #loss1cd, _, _ = calc_dcd(out1, gt, alpha=loss_opts_alpha, n_lambda=loss_opts_lambda)
+                #loss2cd, _, _ = calc_dcd(out2, gt, alpha=loss_opts_alpha, n_lambda=loss_opts_lambda)
                 
-                out1pt = out1[:,:,2] # pt
-                out1dis = out1[:,:,-1] # eta,phi
+                #out1pt = out1[:,:,2] # pt
+                #out1dis = out1[:,:,-1] # eta,phi
 
                 out2pt = out2[:,:,2] # pt
                 out2dis =  out2[:,:,-1] # eta, phi
                 
                 gtpt = gt[:,:,2] # pt
-                gtdis = gt[:,:,:-1] # eta,phi
+                gtdis = gt[:,:,-1] # eta,phi
                 
-                loss1MSE_pt = lossMSE(out1pt, gtpt)
+                #loss1MSE_pt = lossMSE(out1pt, gtpt)
                 loss2MSE_pt = lossMSE(out2pt, gtpt)
-                loss1MSE_dis = lossMSE(out1dis, gtdis)
+                #loss1MSE_dis = lossMSE(out1dis, gtdis)
                 loss2MSE_dis = lossMSE(out2dis, gtdis)
                 
                 loss1MSE_totdis = loss1MSE_pt * loss1MSE_dis
                 loss2MSE_totdis = loss2MSE_pt * loss2MSE_dis
                 
-                loss2 = (a * loss2MSE) + (b * loss2cd) + (g * loss2MSE_totdis)
+                #loss2 = (a * loss2MSE) + (b * loss2cd) + (g * loss2MSE_totdis)
                 
             else:
                 raise NotImplementedError('Train loss is either CD or EMD!')
 
-            total_train_loss_cd = loss1cd.mean() + loss2cd.mean()  #ATTENZIONE, ALPHA PRE-ESISTENTE
+            total_train_loss_cd = loss1cd.mean() + loss2cd.mean() * alpha  #ATTENZIONE, ALPHA PRE-ESISTENTE
             total_train_loss_MSE = loss1MSE.mean() + loss2MSE.mean()
             total_train_loss_MSE_dis = loss1MSE_totdis.mean() + loss2MSE_totdis.mean()
             total_train_loss = (a * total_train_loss_MSE) + (b*total_train_loss_cd) + (g*total_train_loss_MSE_dis)
@@ -166,23 +166,23 @@ class Model(nn.Module):
             cd_p, cd_t, f1 = calc_cd(out2, gt, calc_f1=True)
             lossMSE = nn.MSELoss(reduction = 'none')
             loss2MSE = lossMSE(out2,gt)
-            loss_opts_alpha = 200
-            loss_opts_lambda = 0.5
-        
-            loss2cd, _, _ = calc_dcd(out2, gt, alpha=loss_opts_alpha, n_lambda=loss_opts_lambda)
             
+            #loss_opts_alpha = 200
+            #loss_opts_lambda = 0.5
+            #loss2cd, _, _ = calc_dcd(out2, gt, alpha=loss_opts_alpha, n_lambda=loss_opts_lambda)
+           
             out2pt = out2[:,:,2] # pt
             out2dis =  out2[:,:,-1] # eta, phi
                 
             gtpt = gt[:,:,2] # pt
-            gtdis = gt[:,:,:-1] # eta,phi
+            gtdis = gt[:,:,-1] # eta,phi
             loss2MSE_pt = lossMSE(out2pt, gtpt)
             loss2MSE_dis = lossMSE(out2dis, gtdis)
             loss2MSE_totdis = loss2MSE_pt * loss2MSE_dis
-            a = 0.5
-            b = 0.5
-            g = 0.5
+            a = 0.3
+            b = 0.4
+            g = 0.3
             loss2 = (a * loss2MSE) + (b * loss2cd) + (g * loss2MSE_totdis)
-            return {'out1': out1, 'out2': out2, 'emd': emd, 'cd_p': cd_p, 'cd_t': cd_t, 'f1': f1,'loss2cd': loss2cd, 'tot_loss': loss2}
+            return {'out1': out1, 'out2': out2, 'emd': emd, 'cd_p': cd_p, 'cd_t': cd_t, 'f1': f1, 'tot_loss': loss2}
         else:
             return {'result': out2}
