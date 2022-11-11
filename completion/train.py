@@ -23,7 +23,7 @@ def train():
     if args.eval_emd:
         metrics = ['cd_p', 'cd_t', 'emd', 'f1']
     else:
-        metrics = ['cd_p', 'cd_t', 'f1']
+        metrics = ['cd_p', 'cd_t', 'f1', 'total']
     best_epoch_losses = {m: (0, 0) if m == 'f1' else (0, math.inf) for m in metrics}
     train_loss_meter = AverageValueMeter()
     val_loss_meters = {m: AverageValueMeter() for m in metrics}
