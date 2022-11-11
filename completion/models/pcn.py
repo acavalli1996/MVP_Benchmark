@@ -116,7 +116,7 @@ class Model(nn.Module):
             elif self.train_loss == 'cd':
                 
                 lossMSE = nn.MSELoss(reduction = 'none')
-                loss1MSE = lossMSE(out1,gt)
+                #loss1MSE = lossMSE(out1,gt)
                 loss2MSE = lossMSE(out2,gt)
                 
                 # Classic CD
@@ -143,7 +143,7 @@ class Model(nn.Module):
                 #loss1MSE_dis = lossMSE(out1dis, gtdis)
                 loss2MSE_dis = lossMSE(out2dis, gtdis)
                 
-                loss1MSE_totdis = loss1MSE_pt * loss1MSE_dis
+                #loss1MSE_totdis = loss1MSE_pt * loss1MSE_dis
                 loss2MSE_totdis = loss2MSE_pt * loss2MSE_dis
                 
                 #loss2 = (a * loss2MSE) + (b * loss2cd) + (g * loss2MSE_totdis)
