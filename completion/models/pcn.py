@@ -182,6 +182,9 @@ class Model(nn.Module):
             a = 0.3
             b = 0.4
             g = 0.3
+            total_train_loss_cd = cd_p.mean()  
+            total_train_loss_MSE = loss2MSE.mean()
+            total_train_loss_MSE_dis = loss2MSE_totdis.mean()
             loss2 = (a * loss2MSE) + (b * cd_p) + (g * loss2MSE_totdis)
             return {'out1': out1, 'out2': out2, 'emd': emd, 'cd_p': cd_p, 'cd_t': cd_t, 'f1': f1, 'tot_loss': loss2}
         else:
