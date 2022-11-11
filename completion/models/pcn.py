@@ -16,7 +16,7 @@ class PCN_encoder(nn.Module):
         #self.conv1 = nn.Conv1d(4, 8, 1)
         self.conv1 = nn.Conv1d(3, 256, 1)
         self.conv2 = nn.Conv1d(256, 512, 1)
-        self.conv3 = nn.Conv1d(1064, 2048, 1)
+        self.conv3 = nn.Conv1d(1024, 2048, 1)
         self.conv4 = nn.Conv1d(2048, output_size, 1)
 
     def forward(self, x):
@@ -36,7 +36,7 @@ class PCN_decoder(nn.Module):
         super(PCN_decoder, self).__init__()
         self.num_coarse = num_coarse
         self.num_fine = num_fine
-        self.fc1 = nn.Linear(5, 75)
+        self.fc1 = nn.Linear(75, 75)
         self.fc2 = nn.Linear(75, 75)
         #self.fc3 = nn.Linear(75, num_coarse * 4)
         self.fc3 = nn.Linear(75, num_coarse * 3)
@@ -157,7 +157,7 @@ class Model(nn.Module):
             total_train_loss = (a * total_train_loss_MSE) + (b*total_train_loss_cd) + (g*total_train_loss_MSE_dis)
             #(total_train_loss = loss_cd * alpha)
             
-            return out2, loss2, total_train_loss
+            return out2, loss2cd, total_train_loss
         elif prefix=="val":
             if self.eval_emd:
                 emd = calc_emd(out2, gt, eps=0.004, iterations=3000)
@@ -185,4 +185,4 @@ class Model(nn.Module):
             loss2 = (a * loss2MSE) + (b * loss2cd) + (g * loss2MSE_totdis)
             return {'out1': out1, 'out2': out2, 'emd': emd, 'cd_p': cd_p, 'cd_t': cd_t, 'f1': f1, 'tot_loss': loss2}
         else:
-            return {'result': out2}
+            return {'result': loss2}
