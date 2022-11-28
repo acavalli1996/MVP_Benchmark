@@ -12,6 +12,7 @@ import yaml
 import os
 import sys
 import argparse
+import torch
 from dataset import MVP_CP
 
 import warnings
@@ -23,7 +24,7 @@ def train():
     if args.eval_emd:
         metrics = ['cd_p', 'cd_t', 'emd', 'f1']
     else:
-        metrics = ['cd_p', 'cd_t', 'f1']
+        metrics = ['out2', 'cd_p', 'tot_loss']
     best_epoch_losses = {m: (0, 0) if m == 'f1' else (0, math.inf) for m in metrics}
     train_loss_meter = AverageValueMeter()
     val_loss_meters = {m: AverageValueMeter() for m in metrics}
@@ -126,12 +127,32 @@ def train():
 
             _, inputs, gt = data
             # mean_feature = None
+            
+            jets = inputs
+            mask = jets[:, :, -1] >= 0.5 
+            jets[~mask] = 0
+            #jets[:, :, 2][jets[:, :, 2] < 0] = 0
+            inputs=jets[:, :, :-1]
 
+            final_inputs = torch.empty((inputs.shape[0],30,3))
+
+            for a in range(inputs.shape[0]):
+              for b in range(30):
+                final_inputs[a,b,:] = inputs[a,b,:]
+
+            inputs = final_inputs
+
+            jets = gt
+            mask_gt = jets[:, :, -1] >= 0.5 
+            jets[~mask_gt] = 0
+            #jets[:, :, 2][jets[:, :, 2] < 0] = 0
+            gt=jets[:, :, :-1]
+            
             inputs = inputs.float().cuda()
             gt = gt.float().cuda()
             inputs = inputs.transpose(2, 1).contiguous()
             # out2, loss2, net_loss = net(inputs, gt, mean_feature=mean_feature, alpha=alpha)
-            out2, loss2, net_loss = net(inputs, gt, alpha=alpha)
+            out2, loss2, net_loss = net(inputs, gt, mask, alpha=alpha)
 
             if cascade_gan:
                 d_fake = generator_step(net_d, out2, net_loss, optimizer)
@@ -162,13 +183,35 @@ def val(net, curr_epoch_num, val_loss_meters, dataloader_test, best_epoch_losses
     with torch.no_grad():
         for i, data in enumerate(dataloader_test):
             label, inputs, gt = data
+            jets = inputs
+            mask = jets[:, :, -1] >= 0.5 
+            jets[~mask] = 0
+            #jets[:, :, 2][jets[:, :, 2] < 0] = 0
+            inputs=jets[:, :, :-1]
+
+            final_inputs = torch.empty((inputs.shape[0],30,3))
+
+            for a in range(inputs.shape[0]):
+              for b in range(30):
+                final_inputs[a,b,:] = inputs[a,b,:]
+
+            inputs = final_inputs
+
+            jets = gt
+            mask_gt = jets[:, :, -1] >= 0.5 
+            jets[~mask_gt] = 0
+            #jets[:, :, 2][jets[:, :, 2] < 0] = 0
+            gt=jets[:, :, :-1]
+            
+	  
+
             # mean_feature = None
             curr_batch_size = gt.shape[0]
 
             inputs = inputs.float().cuda()
             gt = gt.float().cuda()
             inputs = inputs.transpose(2, 1).contiguous()
-            result_dict = net(inputs, gt, prefix="val")
+            result_dict = net(inputs, gt, mask, prefix="val")
             for k, v in val_loss_meters.items():
                 v.update(result_dict[k].mean().item(), curr_batch_size)
 
@@ -211,6 +254,3 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler(os.path.join(log_dir, 'train.log')),
                                                       logging.StreamHandler(sys.stdout)])
     train()
-
-
-
