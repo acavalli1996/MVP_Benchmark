@@ -1,4 +1,4 @@
-batch_size: 25
+batch_size: 256
 workers: 0
 nepoch: 100
 model_name: pcn
