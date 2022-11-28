@@ -8,11 +8,11 @@ import os
 class MVP_CP(data.Dataset):
     def __init__(self, prefix="train"):
         if prefix=="train":
-            self.file_path = './data/MVP_Train_CP.h5'
+            self.file_path = './data/MVP_Train_CP.hdf5'
         elif prefix=="val":
-            self.file_path = './data/MVP_Evaluation_CP.h5'
+            self.file_path = './data/MVP_Evaluation_CP.hdf5'
         elif prefix=="test":
-            self.file_path = './data/MVP_Test_CP.h5'
+            self.file_path = './data/MVP_Test_CP.hdf5'
         else:
             raise ValueError("ValueError prefix should be [train/val/test] ")
 
