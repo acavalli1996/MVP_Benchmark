@@ -6,6 +6,7 @@ import argparse
 import numpy as np
 import h5py
 import subprocess
+import torch
 
 from numpy.lib.index_tricks import AxisConcatenator
 import munch
@@ -41,11 +42,23 @@ def test():
         for i, data in enumerate(dataloader_test):
             
             inputs_cpu = data
+            jets=inputs_cpu
+            mask = jets[:, :, -1] >= 0.5 
+            jets[~mask] = 0
+            #jets[:, :, 2][jets[:, :, 2] < 0] = 0
+            inputs=jets[:, :, :-1]
+            final_inputs = torch.empty((inputs.shape[0],30,3))
+
+            for a in range(inputs.shape[0]):
+              for b in range(30):
+                final_inputs[a,b,:] = inputs[a,b,:]
+
+            inputs_cpu = final_inputs
 
             inputs = inputs_cpu.float().cuda()
             inputs = inputs.transpose(2, 1).contiguous()
 
-            result_dict = net(inputs, prefix="test")
+            result_dict = net(inputs, mask = mask, prefix="test")
             results_list.append(result_dict['result'].cpu().numpy())
 
             if i % args.step_interval_to_print == 0:
